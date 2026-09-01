@@ -1,0 +1,1601 @@
+# Client Application
+
+Angular 21 + Tailwind CSS 4 + SSR を採用したフロントエンドアプリケーションです。
+
+**フレームワーク & ビルド:**</br>
+[![Angular](https://img.shields.io/badge/Angular-21.0.6-DD0031.svg?logo=angular)](https://angular.dev/)
+[![Angular CDK](https://img.shields.io/badge/Angular_CDK-21.0.5-DD0031.svg?logo=angular)](https://material.angular.io/cdk/categories)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![esbuild](https://img.shields.io/badge/esbuild-@angular/build-FFCF00.svg?logo=esbuild)](https://angular.dev/tools/cli/build-system-migration)
+
+**Lint & フォーマット:**</br>
+[![ESLint](https://img.shields.io/badge/ESLint-9.39.2-4B32C3.svg?logo=eslint)](https://eslint.org/)
+[![Prettier](https://img.shields.io/badge/Prettier-3.7.4-F7B93E.svg?logo=prettier)](https://prettier.io/)
+
+**SSR:**</br>
+[![SSR](https://img.shields.io/badge/SSR-Enabled-4CAF50.svg)](https://angular.dev/guide/ssr)
+[![ISR](https://img.shields.io/badge/ISR-@rx--angular-E91E63.svg)](https://www.rx-angular.io/docs/isr)
+[![Express](https://img.shields.io/badge/Express-4.21.0-000000.svg?logo=express)](https://expressjs.com/)
+
+**状態管理 & リアクティブ:**</br>
+[![NGXS](https://img.shields.io/badge/NGXS-21.0.0-3F51B5.svg)](https://www.ngxs.io/)
+[![RxJS](https://img.shields.io/badge/RxJS-7.8.2-B7178C.svg?logo=reactivex)](https://rxjs.dev/)
+[![RxAngular](https://img.shields.io/badge/RxAngular-20.1.0-E91E63.svg)](https://www.rx-angular.io/)
+
+**スタイリング:**</br>
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.18-06B6D4.svg?logo=tailwindcss)](https://tailwindcss.com/)
+[![PostCSS](https://img.shields.io/badge/PostCSS-8.5.6-DD3A0A.svg?logo=postcss)](https://postcss.org/)
+[![CVA](https://img.shields.io/badge/CVA-0.7-7C3AED.svg)](https://cva.style/)
+[![clsx](https://img.shields.io/badge/clsx-2.1-06B6D4.svg)](https://github.com/lukeed/clsx)
+[![tailwind-merge](https://img.shields.io/badge/tailwind--merge-3.4-06B6D4.svg)](https://github.com/dcastil/tailwind-merge)
+
+**テスト & UIカタログ:**</br>
+[![Vite](https://img.shields.io/badge/Vite-7.3.0-646CFF.svg?logo=vite)](https://vite.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-4.0.16-6E9F18.svg?logo=vitest)](https://vitest.dev/)
+[![Testing Library](https://img.shields.io/badge/Testing_Library-18.1-E33332.svg?logo=testinglibrary)](https://testing-library.com/)
+[![jsdom](https://img.shields.io/badge/jsdom-27.4.0-F7DF1E.svg)](https://github.com/jsdom/jsdom)
+[![Storybook](https://img.shields.io/badge/Storybook-10.1.10-FF4785.svg?logo=storybook)](https://storybook.js.org/)
+
+## 目次
+
+**Getting Started**
+
+- [開発コマンド](#開発コマンド)
+- [環境変数](#環境変数)
+
+**Architecture**
+
+- [設計思想](#設計思想)
+- [アーキテクチャ](#アーキテクチャ)
+- [ディレクトリ構成](#ディレクトリ構成)
+- [配置基準](#配置基準)
+
+**Patterns**
+
+- [状態管理（NGXS）](#状態管理ngxs)
+- [リアクティブパターンの使い分け](#リアクティブパターンの使い分け)
+- [フォーム管理](#フォーム管理)
+- [国際化（i18n）](#国際化i18n)
+- [UI アーキテクチャ](#ui-アーキテクチャ)
+- [エラーハンドリング](#エラーハンドリング)
+- [スピナー（Spinner）](#スピナーspinner)
+- [スナックバー（Snackbar）](#スナックバーsnackbar)
+
+**SSR / SEO**
+
+- [ISR（Incremental Static Regeneration）](#isrincremental-static-regeneration)
+- [SEO対応](#seo対応)
+- [Cookie Consent（Google Consent Mode v2）](#cookie-consentgoogle-consent-mode-v2)
+
+**Development**
+
+- [テスト戦略](#テスト戦略)
+- [Storybook](#storybook)
+- [パフォーマンス最適化](#パフォーマンス最適化)
+- [エラーコード同期テスト](#エラーコード同期テスト)
+- [パッケージ管理（pnpm catalog）](#パッケージ管理pnpm-catalog)
+
+---
+
+## 開発コマンド
+
+**キーワード**: `pnpm`, `開発サーバー`, `ビルド`, `テスト`, `Lint`, `Storybook`
+
+このセクションでは、プロジェクトで使用する主要な開発コマンドを説明します。
+
+```bash
+# 完全クリーンアップ（node_modulesも削除）
+pnpm clean
+
+# キャッシュクリア（.angular, .turbo, coverage, dist）
+pnpm clean:cache
+
+# 開発サーバー起動
+pnpm start
+
+# ビルド
+pnpm build
+
+# SSR サーバー起動
+pnpm serve:ssr:client
+
+# テスト
+pnpm test
+
+# Lint
+pnpm lint
+
+# Storybook 起動
+pnpm storybook
+
+# Storybook ビルド
+pnpm build-storybook
+```
+
+## 環境変数
+
+**キーワード**: `環境変数`, `environment.ts`, `.env`, `環境設定`, `BUILD_CONFIGURATION`
+
+このセクションでは、プロジェクトで必要な環境変数とその設定方法について説明します。
+
+### environment.ts（ビルド時設定）
+
+Angularアプリケーションのビルド時に埋め込まれる設定です。
+
+| 変数名          | 説明                      | 例                      | 必須   |
+| --------------- | ------------------------- | ----------------------- | ------ |
+| **Application** |                           |                         |        |
+| `production`    | 本番モードフラグ          | `false`                 | はい   |
+| **API / URL**   |                           |                         |        |
+| `apiUrl`        | バックエンドAPIのURL      | `http://localhost:4000` | はい   |
+| `baseUrl`       | フロントエンドのベースURL | `http://localhost:4200` | はい   |
+| **Analytics**   |                           |                         |        |
+| `gaId`          | Google Analytics ID       | `G-XXXXXXX`             | いいえ |
+
+#### 環境ファイルの種類
+
+| ファイル                 | 用途                   | BUILD_CONFIGURATION |
+| ------------------------ | ---------------------- | ------------------- |
+| `environment.ts`         | 開発環境（デフォルト） | -                   |
+| `environment.develop.ts` | 開発環境               | `develop`           |
+| `environment.preview.ts` | プレビュー環境         | `preview`           |
+| `environment.prod.ts`    | 本番環境               | `production`        |
+
+#### 設定例
+
+```typescript
+// ファイル: apps/client/environments/environment.ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:4000',
+  baseUrl: 'http://localhost:4200',
+  gaId: '',
+};
+```
+
+### .env（SSRサーバー実行時設定）
+
+SSRサーバー（Express）で使用する実行時環境変数です。
+
+| 変数名                | 説明                           | 例                | 必須   |
+| --------------------- | ------------------------------ | ----------------- | ------ |
+| **Server**            |                                |                   |        |
+| `NODE_ENV`            | 環境（production/development） | `production`      | いいえ |
+| `PORT`                | サーバーポート番号             | `8080`            | いいえ |
+| **Basic Auth**        |                                |                   |        |
+| `BASIC_AUTH_ENABLED`  | Basic認証の有効化              | `true`            | いいえ |
+| `BASIC_AUTH_USER`     | Basic認証ユーザー名            | `admin`           | いいえ |
+| `BASIC_AUTH_PASSWORD` | Basic認証パスワード            | `password`        | いいえ |
+| **ISR**               |                                |                   |        |
+| `ISR_SECRET`          | ISR invalidate用シークレット   | `MY_SECRET_TOKEN` | いいえ |
+
+#### 環境変数の設定
+
+```bash
+# .env.exampleをコピー
+cp .env.example .env
+
+# エディタで.envを編集し、実際の値を設定
+```
+
+### BUILD_CONFIGURATION（Dockerビルド設定）
+
+Dockerビルド時に使用する環境変数です。どのenvironmentファイルを使用するかを指定します。
+
+| 変数名                | 説明                   | 例           | 必須   |
+| --------------------- | ---------------------- | ------------ | ------ |
+| `BUILD_CONFIGURATION` | ビルド設定（環境指定） | `production` | いいえ |
+
+#### 使用方法
+
+```bash
+# ローカルでのビルド（デフォルト: develop）
+pnpm build
+
+# 本番環境向けビルド
+BUILD_CONFIGURATION=production pnpm build
+
+# Dockerビルド時
+docker build --build-arg BUILD_CONFIGURATION=production -t client .
+```
+
+#### Cloud Build での設定
+
+`cloudbuild.yaml` で `_BUILD_CONFIGURATION` 変数として指定します：
+
+```yaml
+substitutions:
+  _BUILD_CONFIGURATION: production
+```
+
+---
+
+## 設計思想
+
+**キーワード**: `設計原則`, `Vertical Slice Architecture`, `DDD`, `Facadeパターン`, `shadcn/ui`
+
+このセクションでは、プロジェクトの設計思想と、なぜこの構成を採用したかの理由を説明します。詳細は[アーキテクチャ](#アーキテクチャ)セクションも参照してください。
+
+### なぜこの構成か
+
+1. **アルファベット順の一貫性**: `app → components → domains → modules → shared` の順で視覚的に整理
+2. **Vertical Slice**: 各ページが独立したスライスとして完結し、凝集度が高い
+3. **DDD境界の意識**: ページ固有のものはページ内に、共有するものだけが上位レイヤーに昇格
+4. **shadcn/uiアプローチ**: `shared/ui/` にUIプリミティブを配置し、コピー＆カスタマイズ可能な構成
+5. **Facade パターン**: Store へのアクセスを抽象化し、コンポーネントとの結合度を下げる
+
+### Angular公式スタイルガイドとの差異
+
+本構成はAngular公式スタイルガイドの推奨（機能ごとのディレクトリ構成）とは一部異なります。これは設計原則（Vertical Slice / Layered Architecture）を優先した意図的な選択です。
+
+チームメンバーはこのREADMEを参照し、配置基準を理解した上で開発を行ってください。
+
+## アーキテクチャ
+
+**キーワード**: `Vertical Slice Architecture`, `Layered Architecture`, `レイヤー構成`, `依存関係`
+
+このセクションでは、プロジェクト全体のアーキテクチャ設計について説明します。Vertical Slice ArchitectureとLayered Architectureを組み合わせた構成を採用しています。
+
+詳細は[設計思想](#設計思想)セクションも参照してください。
+
+### レイヤー構成
+
+| ディレクトリ  | レイヤー              | 責務                                             | 状態   |
+| ------------- | --------------------- | ------------------------------------------------ | ------ |
+| `app/`        | Presentation          | ページ・ルーティング・UI表示                     | 使用中 |
+| `components/` | Presentation (Shared) | 複数ページで共有するUIコンポーネント             | 使用中 |
+| `domains/`    | Domain + Application  | エンティティ・状態管理（NGXS）・ビジネスロジック | 使用中 |
+| `modules/`    | Application           | app/components/domains間で共有するロジック       | 使用中 |
+| `shared/`     | Infrastructure        | ユーティリティ・UIプリミティブ・アダプター       | 使用中 |
+
+### 依存関係のルール
+
+```
+app/ ──→ components/ ──→ domains/ ──→ modules/ ──→ shared/
+```
+
+- 上位レイヤーは下位レイヤーに依存できる（右方向への依存のみ許可）
+- 下位レイヤーは上位レイヤーに依存してはならない（左方向への依存は禁止）
+- `shared/` は全レイヤーから参照可能
+
+## ディレクトリ構成
+
+**キーワード**: `Vertical Slice`, `ディレクトリ構造`, `app/`, `components/`, `domains/`, `modules/`, `shared/`
+
+このセクションでは、プロジェクトのディレクトリ構成と各ディレクトリの役割を説明します。
+
+```
+src/
+├── app/              # (a) ルートコンポーネント + 各ページ
+│   ├── app.ts            # ルートコンポーネント
+│   ├── app.config.ts     # アプリケーション設定
+│   ├── app.routes.ts     # ルーティング定義
+│   └── {page}/           # 各ページ（Vertical Slice）
+│       ├── {page}.ts         # 親コンポーネント（Facade、RxLet）
+│       ├── {page}.html       # レイアウト + サブコンポーネント呼び出し
+│       ├── {page}.routes.ts  # ルーティング定義
+│       └── components/       # ページ固有サブコンポーネント
+│           └── {name}/
+├── components/       # (c) 複数ページで共有するコンポーネント（Composed UI）
+├── domains/          # (d) ドメインロジック + 状態管理（NGXS）
+├── modules/          # (m) app/components/domains間で共有するロジック
+├── shared/           # (s) 共有リソース
+│   ├── lib/              # ユーティリティ関数
+│   └── ui/               # UIプリミティブ（shadcn/ui相当）
+├── main.ts               # クライアントエントリーポイント
+├── main.server.ts        # SSRエントリーポイント
+├── server.ts             # Expressサーバー（SSR + ISR）
+└── index.html
+```
+
+### ページコンポーネントの標準パターン
+
+各ページは **親コンポーネント + サブコンポーネント** の構成を標準とします。
+
+```
+app/{page}/
+├── {page}.ts              # 親（Facade提供、AsyncPipe、Input/Output連携）
+├── {page}.html            # レイアウト + サブコンポーネント呼び出し
+├── {page}.routes.ts       # ルーティング定義
+├── index.ts
+└── components/            # ページ固有サブコンポーネント
+    ├── index.ts
+    └── {name}/
+        ├── {name}.ts
+        ├── {name}.html
+        └── index.ts
+```
+
+**責務分離:**
+
+- **親コンポーネント**: Facade の提供、Observable の購読（`async` パイプ）、サブコンポーネントへの Input/Output 連携
+- **サブコンポーネント**: Input で受け取ったデータの表示のみ（Presentational）
+
+**例:**
+
+```typescript
+// ファイル: apps/client/src/app/article-list/article-list.ts
+// 親コンポーネントの実装例
+@Component({
+  imports: [AsyncPipe, ArticleListContentComponent],
+  providers: [ArticleListFacade],
+})
+export class ArticleListComponent {
+  private readonly facade = inject(ArticleListFacade);
+  readonly articleList$ = this.facade.articleList$;
+}
+```
+
+```html
+<!-- ファイル: apps/client/src/app/article-list/article-list.html -->
+<!-- 親テンプレートの実装例 -->
+<app-article-list-content [articles]="(articleList$ | async) ?? []" />
+```
+
+```typescript
+// ファイル: apps/client/src/app/article-list/components/article-list-content/article-list-content.ts
+// サブコンポーネントの実装例
+@Component({ ... })
+export class ArticleListContentComponent {
+  readonly articles = input.required<Article[]>();
+}
+```
+
+### ライフサイクルフック
+
+モダン Angular（`inject()` + Signal）では `ngOnInit` は使用せず、**constructor** で初期化を行います。
+
+```typescript
+// 推奨: constructor で初期化
+@Component({ ... })
+export class ArticleListComponent {
+  private readonly facade = inject(ArticleListFacade);
+  readonly articleList$ = this.facade.articleList$;
+
+  constructor() {
+    this.facade.loadArticleList();
+  }
+}
+
+// ❌ ngOnInit は使わない
+export class ArticleListComponent implements OnInit {
+  ngOnInit(): void {
+    this.facade.loadArticleList();
+  }
+}
+```
+
+**理由:**
+
+- `inject()` は constructor injection context で動作
+- Signal inputs (`input()`) は constructor 時点で利用可能
+- `ActivatedRoute.snapshot` も constructor で取得可能
+- コードがシンプルになる
+
+## 配置基準
+
+**キーワード**: `ファイル配置`, `配置ルール`, `パスエイリアス`, `命名規則`
+
+このセクションでは、ファイルやコンポーネントをどこに配置すべきかの基準を説明します。詳細は[ディレクトリ構成](#ディレクトリ構成)セクションも参照してください。
+
+### どこに何を置くか
+
+| 対象                         | 配置先                    | 例                                         |
+| ---------------------------- | ------------------------- | ------------------------------------------ |
+| ルーティング対象のページ     | `app/{page}/`             | `app/home/home.ts`                         |
+| ページ固有のUI部品           | `app/{page}/components/`  | `app/home/components/tag-list/tag-list.ts` |
+| 複数ページで共有するUI       | `components/`             | `components/fields/input-field/`           |
+| Composed UI（ロジック連携）  | `components/`             | `components/fields/input-field/`           |
+| 状態管理（NGXS State）       | `domains/{domain}/store/` | `domains/home/store/home.state.ts`         |
+| Facade                       | `domains/{domain}/`       | `domains/home/home.facade.ts`              |
+| ビジネスロジック             | `domains/{domain}/`       | `domains/user/user.service.ts`             |
+| app/components/domains間共有 | `modules/`                | `modules/ui/ui.facade.ts`                  |
+| UIプリミティブ（最小単位）   | `shared/ui/`              | `shared/ui/button/button.ts`               |
+| ユーティリティ関数           | `shared/lib/`             | `shared/lib/utils.ts`                      |
+
+### パスエイリアス
+
+```typescript
+import { ButtonDirective } from '$shared/ui';
+import { cn } from '$shared/lib';
+import { HomeFacade } from '$domains/home';
+import { InputFieldComponent } from '$components/fields';
+```
+
+| エイリアス      | パス               |
+| --------------- | ------------------ |
+| `$app/*`        | `src/app/*`        |
+| `$components/*` | `src/components/*` |
+| `$domains/*`    | `src/domains/*`    |
+| `$modules/*`    | `src/modules/*`    |
+| `$shared/*`     | `src/shared/*`     |
+
+### 命名規則
+
+- コンポーネント: `{name}.ts`（単一ファイルコンポーネント）
+- テンプレート: `{name}.html`（必要な場合のみ分離）
+- スタイル: `{name}.css`（必要な場合のみ分離）
+- テスト（Unit）: `{name}.test.ts`（`src/` 配下）
+- テスト（E2E）: `{name}.spec.ts`（`src/test/` 配下）
+
+---
+
+## 状態管理（NGXS）
+
+**キーワード**: `NGXS`, `状態管理`, `Facade`, `Store`, `Action`, `Selector`
+
+このセクションでは、NGXSを使用した状態管理のパターンについて説明します。Facadeパターンによる責務分離と、Storeの状態更新方法を中心に解説します。
+
+**関連ファイル**:
+
+- `apps/client/src/domains/{domain}/{domain}.facade.ts` - Facade実装
+- `apps/client/src/domains/{domain}/store/{domain}.state.ts` - State定義
+- `apps/client/src/domains/{domain}/store/{domain}.actions.ts` - Action定義
+
+### ドメイン構造
+
+```
+domains/{domain}/
+├── api/
+│   ├── {domain}.api.ts          # API呼び出し（内部）
+│   ├── {domain}.response.ts     # APIレスポンス型（内部）
+│   └── index.ts
+├── model/
+│   ├── {domain}.model.ts        # State/UI用モデル（公開）
+│   └── index.ts
+├── store/
+│   ├── {domain}.state.ts        # State定義 + Selector（内部）
+│   ├── {domain}.actions.ts      # Action定義（内部）
+│   └── index.ts
+├── {domain}.facade.ts           # API呼び出し + Store操作（公開）
+└── index.ts                     # model と facade のみエクスポート
+```
+
+### 設計原則
+
+#### 1. app/ と domains/ の命名統一
+
+`app/` のページディレクトリと `domains/` のドメインディレクトリは **同じ名前**で統一します。
+
+```
+app/
+  article-list/     ← 記事一覧ページ
+  article-page/     ← 記事詳細ページ
+
+domains/
+  article-list/     ← 記事一覧ドメイン
+  article-page/     ← 記事詳細ドメイン
+```
+
+また、ドメイン内のファイル名・型名も統一します。
+
+```
+domains/article-page/
+  api/article-page.api.ts           # ArticlePageApi
+  api/article-page.response.ts      # ArticlePageResponse
+  model/article-page.model.ts       # ArticlePage, ArticlePageItem
+  store/article-page.actions.ts     # SetArticlePage, SetArticlePageItems
+  store/article-page.state.ts       # ArticlePageState
+  article-page.facade.ts            # ArticlePageFacade
+```
+
+**メリット:**
+
+- どのページがどのドメインを使うか一目瞭然
+- `ArticlePage` で検索すれば関連ファイルが全てヒット
+- 新しいメンバーも迷わない
+
+#### 2. 公開範囲の制限
+
+`index.ts` では **model と facade のみ**をエクスポートし、`api` と `store` は内部実装として隠蔽します。
+
+```typescript
+// domains/article-list/index.ts
+export * from './model'; // ✅ 公開
+export * from './article-list.facade'; // ✅ 公開
+// api/ と store/ はエクスポートしない
+```
+
+**メリット:**
+
+- 外部から使うべきものが明確
+- 内部実装の変更が外部に影響しない
+- 認知負荷の軽減
+
+#### 3. APIモデルとStateモデルの分離
+
+API レスポンスの型と State で使用する型は別々に定義します。
+
+```typescript
+// api/article-list.response.ts（内部で隠蔽）
+export interface ArticleResponse {
+  id: string;
+  createdAt: string; // APIはstringで返す
+}
+
+// model/article-list.model.ts（外部に公開）
+export interface Article {
+  id: string;
+  createdAt: Date; // アプリ内ではDateで扱う
+}
+```
+
+**メリット:**
+
+- API の形式変更が State/UI 層に影響しない
+- 変換ロジックを Facade に集約
+
+#### 4. Facade パターンによる責務分離
+
+一般的な「State 内で API を呼び出す」パターンではなく、**Facade 内で API 呼び出しと Store 操作を結合**します。
+
+```typescript
+// 非推奨: State内でAPI呼び出し（密結合）
+@Action(LoadArticleList)
+loadArticleList(ctx) {
+  return this.api.getArticleList().pipe(
+    tap((res) => ctx.dispatch(new LoadArticleListSuccess(res))),
+    catchError((err) => ctx.dispatch(new LoadArticleListFailure(err))),
+  );
+}
+
+// 推奨: Facade内でAPI呼び出し + Store操作
+loadArticleList(): void {
+  this.api.getArticleList().subscribe((response) => {
+    const articles: Article[] = response.articleList.map((r) => ({
+      id: r.id,
+      title: r.title,
+      createdAt: new Date(r.createdAt),
+    }));
+    this.store.dispatch(new SetArticleList(articles));
+  });
+}
+```
+
+**メリット:**
+
+- State は純粋なデータ保持のみ（get/set）
+- API と Store の密結合を解消
+- Action 名が対照的で分かりやすい（`getArticleList` / `setArticleList`）
+
+#### 5. エラーハンドリングの共通化
+
+`loading` / `error` 状態は各ドメインでは実装せず、共通処理で対応します。
+
+- **Interceptor**: HTTP エラーをキャッチし、通知ドメインへ連携
+- **通知ドメイン**: Toast 表示などの UI フィードバック
+
+```typescript
+// 非推奨: 各ドメインで loading/error を管理しない
+interface ArticleListStateModel {
+  articleList: Article[];
+  loading: boolean; // 不要
+  error: string; // 不要
+}
+
+// ✅ データのみ保持
+interface ArticleListStateModel {
+  articleList: Article[];
+}
+```
+
+### Facade の使用例
+
+```typescript
+// Facadeの使用例（コンポーネントから）
+private readonly facade = inject(ArticleListFacade);
+readonly articleList$ = this.facade.articleList$;
+
+constructor() {
+  this.facade.loadArticleList();
+}
+```
+
+### フォーム連携（@ngxs/form-plugin）
+
+Reactive Forms と NGXS Store を自動同期します。詳細は[フォーム管理](#フォーム管理)セクションも参照してください。
+
+```html
+<form [formGroup]="form" ngxsForm="domain.formPath">
+  <input formControlName="text" />
+</form>
+```
+
+State に `textForm` を定義すると、フォームの値が自動的に Store に同期されます。
+
+### 状態更新パターン
+
+NGXS Storeの状態更新では、以下のパターンを使用します：
+
+- **使用するメソッド**: `ctx.setState()`と`patch`オペレーター（`@ngxs/store/operators`）
+- **使用しないメソッド**: `ctx.patchState()`は使用しない
+
+実装例:
+
+```typescript
+// ファイル: apps/client/src/domains/article-edit/store/article-edit.state.ts
+// 状態更新パターンの実装例
+@Action(SetArticle)
+setArticle(ctx: StateContext<ArticleEditStateModel>, action: SetArticle) {
+  ctx.setState(
+    patch({
+      articleForm: patch({
+        model: patch({
+          ...action.article,
+        }),
+      }),
+    }),
+  );
+}
+```
+
+## リアクティブパターンの使い分け
+
+**キーワード**: `Signal`, `Observable`, `NGXS`, `AsyncPipe`, `RxLet`, `Reactive Forms`, `@ngxs/form-plugin`
+
+このセクションでは、Signal、Observable、NGXS、Reactive Formsなどのリアクティブパターンの使い分けを説明します。
+
+| スコープ       | 技術                             | 用途                       | 例                                 |
+| -------------- | -------------------------------- | -------------------------- | ---------------------------------- |
+| ローカル状態   | **Signal**                       | コンポーネント内部         | `signal()`, `computed()`           |
+| グローバル状態 | **NGXS + `async` パイプ**        | domains連携、大規模データ  | `facade.data$` + `async`           |
+| フォーム       | **Reactive Forms + form-plugin** | バリデーション + Store同期 | `ngxsForm`                         |
+| テンプレート   | **AsyncPipe**（SSR対応）         | Observable の描画          | `(data$ \| async) ?? defaultValue` |
+
+### 使い分けの指針
+
+- **shared/ui/, components/**: 内部実装は Signal を使用
+- **domains との連携**: NGXS Store + `async` パイプで Observable を描画（詳細は[状態管理（NGXS）](#状態管理ngxs)セクションを参照）
+- **フォーム**: Reactive Forms でバリデーション、@ngxs/form-plugin で Store 同期（詳細は[フォーム管理](#フォーム管理)セクションを参照）
+- **テンプレートでの Observable**: SSRハイドレーション対応のため `async` パイプを使用
+
+### AsyncPipe vs RxLet の選択基準
+
+| シナリオ                          | 推奨          | 理由                                                         |
+| --------------------------------- | ------------- | ------------------------------------------------------------ |
+| SSR + ハイドレーション（ページ）  | **AsyncPipe** | RxLet は SSR 環境で CLS が発生する可能性がある               |
+| CSRのみ（ダイアログ、モーダル内） | **RxLet**     | ハイドレーション不要で、パフォーマンス向上の恩恵を受けられる |
+| Zone.js 除外が必要なイベント      | **RxUnpatch** | 特定イベントのみ Zone.js をバイパス                          |
+
+> **注意**: RxLet は SSR 環境で `ngSkipHydration` を自動的に追加するため、SSR でレンダリングされた HTML がクライアントで完全に再レンダリングされ、レイアウトシフト（CLS）が発生する可能性があります。SSR を使用するページコンポーネントでは `async` パイプを使用してください。
+
+## フォーム管理
+
+**キーワード**: `Reactive Forms`, `@ngxs/form-plugin`, `バリデーション`, `InputFieldComponent`, `親子コンポーネント連携`
+
+このセクションでは、Reactive FormsとNGXS Storeを連携したフォーム管理パターンについて説明します。親子コンポーネントでの連携方法や、トップダウンバリデーション戦略も含みます。
+
+**関連ファイル**:
+
+- `apps/client/src/app/article-edit/components/edit-form/edit-form.ts` - フォームコンポーネント例
+- `apps/client/src/components/fields/input-field/input-field.ts` - InputFieldComponent実装
+
+### 技術構成
+
+| 技術                | 役割                                         |
+| ------------------- | -------------------------------------------- |
+| Reactive Forms      | バリデーション（`required`, `minLength` 等） |
+| @ngxs/form-plugin   | Store との自動同期                           |
+| InputFieldComponent | エラー表示の共通化                           |
+
+### InputFieldComponent の使用
+
+**ファイル**: `apps/client/src/components/fields/input-field/input-field.ts`
+
+```html
+<app-input-field label="ユーザー名" [control]="form.controls.username">
+  <input appInput formControlName="username" />
+</app-input-field>
+```
+
+機能:
+
+- ラベル表示
+- バリデーションエラーの自動表示
+- エラー状態のスタイル適用
+
+### フォーム管理パターン（親子コンポーネント連携）
+
+article-editで使用しているフォーム管理パターン：
+
+- **親コンポーネント**: Facadeの呼び出し、`isFormInvalid$`と`isFormDirty$`をFacade経由で取得
+- **子コンポーネント**: `FormGroup`を定義し、`ngxsForm`ディレクティブでNGXS Storeと連携
+- **保存アクション**: 親コンポーネント側で定義（`onSave()`メソッド）
+- **URLパラメータのバリデーション**: URLパラメータもStoreに保存し、FormsのValidatorsを利用することで同時にvalidateを実施
+
+実装例:
+
+```typescript
+// ファイル: apps/client/src/app/article-edit/article-edit.ts
+// 親コンポーネントの実装例
+@Component({ ... })
+export class ArticleEditComponent {
+  private readonly facade = inject(ArticleEditFacade);
+  readonly isFormInvalid$ = this.facade.isFormInvalid$;
+  readonly isFormDirty$ = this.facade.isFormDirty$;
+
+  onSave(): void {
+    const form = this.editForm()?.form;
+    if (!form || form.invalid) return;
+    // 保存処理
+  }
+}
+```
+
+```typescript
+// ファイル: apps/client/src/app/article-edit/components/edit-form/edit-form.ts
+// 子コンポーネントの実装例
+@Component({ ... })
+export class EditFormComponent {
+  readonly form = this.fb.nonNullable.group({
+    articleId: ['', [Validators.required]],
+    title: ['', [Validators.required]],
+    // ...
+  });
+}
+```
+
+```html
+<!-- ファイル: apps/client/src/app/article-edit/components/edit-form/edit-form.html -->
+<!-- 子コンポーネントテンプレートの実装例 -->
+<form [formGroup]="form" ngxsForm="articleEdit.articleForm">
+  <input formControlName="title" />
+</form>
+```
+
+### バリデーション戦略（トップダウンバリデーション）
+
+**トップダウンバリデーション**を採用しています：
+
+- **バリデーション対象**: ユーザー入力（フォーム）のみ
+- **バリデーション対象外**: APIレスポンス、Storeのデータ
+- **メリット**: 必要最小限のバリデーションで高い保守性・拡張性を実現
+
+**実装方針**:
+
+- APIからのレスポンスやストアには直接Zodを使わず、コンポーネントからの入力にのみValidateをかける
+- Reactive Formsの`Validators`を使用（`required`、`minLength`など）
+
+```typescript
+// 推奨: フォームでバリデーション
+readonly form = this.fb.nonNullable.group({
+  title: ['', [Validators.required, Validators.minLength(1)]],
+});
+
+// 非推奨: APIレスポンスやStoreのデータにはバリデーションをかけない
+interface ArticleResponse {
+  id: string;
+  title: string; // バリデーション不要
+}
+```
+
+## 国際化（i18n）
+
+**キーワード**: `i18n`, `国際化`, `@angular/localize`, `$localize`, `XLIFF`, `ビルド時翻訳`
+
+このセクションでは、`@angular/localize` を使用したビルド時 i18n の実装方法について説明します。
+
+**関連ファイル**:
+
+- `apps/client/public/i18n/ui/*.json` - UI用翻訳ソースファイル
+- `apps/client/public/i18n/error/*.json` - エラー用翻訳ソースファイル
+- `apps/client/locale/messages.xlf` - 抽出されたメッセージ（自動生成）
+- `apps/client/locale/messages.ja.xlf` - 日本語翻訳（自動生成）
+- `apps/client/scripts/merge-translations.ts` - JSON → XLF 変換スクリプト
+
+### なぜ @angular/localize か
+
+| 比較項目          | @angular/localize           | ngx-translate               |
+| ----------------- | --------------------------- | --------------------------- |
+| 翻訳タイミング    | ビルド時（コンパイル時）    | ランタイム                  |
+| バンドルサイズ    | 言語ごとに最適化            | 全言語分のローダー含む      |
+| SSRパフォーマンス | ✅ 翻訳済みHTMLを即座に返却 | ❌ クライアントで翻訳ロード |
+| Layout Shift      | ✅ なし                     | ⚠️ 翻訳ロード時に発生しうる |
+
+**SSR環境でのパフォーマンス最適化のため `@angular/localize` を採用しています。**
+
+### 翻訳ソースファイルの構成
+
+翻訳は JSON ファイルで管理し、ビルド時に XLIFF 形式に変換されます。
+
+```
+apps/client/
+├── public/i18n/           # 翻訳ソース（手動編集）
+│   ├── error/
+│   │   ├── en.json
+│   │   └── ja.json
+│   └── ui/
+│       ├── en.json
+│       └── ja.json
+└── locale/                # 生成されるXLIFF（.gitignore対象）
+    ├── messages.xlf       # ng extract-i18n で生成
+    └── messages.ja.xlf    # merge-translations.ts で生成
+```
+
+### テンプレートでの使用方法
+
+#### i18n 属性（推奨）
+
+```html
+<!-- 静的テキスト -->
+<h1 i18n="@@home.title">Welcome to Conduit</h1>
+
+<!-- 属性の翻訳 -->
+<input placeholder="Search..." i18n-placeholder="@@search.placeholder" />
+
+<!-- ボタン -->
+<button i18n="@@common.save">Save</button>
+```
+
+#### $localize タグ（TypeScript内）
+
+```typescript
+// コンポーネント内
+const message = $localize`:@@error.unexpectedError:An unexpected error occurred`;
+
+// SEOサービス内
+this.seoService.setPageMeta({
+  title: $localize`:@@seo.home.title:Home`,
+  description: $localize`:@@seo.home.description:A place to share your Angular knowledge.`,
+});
+```
+
+### i18n ワークフロー
+
+#### 1. 翻訳キーの追加
+
+テンプレートまたは TypeScript に `i18n` 属性や `$localize` タグを追加：
+
+```html
+<p i18n="@@article.readMore">Read more</p>
+```
+
+#### 2. JSON ファイルに翻訳を追加
+
+```json
+// public/i18n/ui/en.json
+{
+  "article": {
+    "readMore": "Read more"
+  }
+}
+
+// public/i18n/ui/ja.json
+{
+  "article": {
+    "readMore": "続きを読む"
+  }
+}
+```
+
+#### 3. ビルド時に自動変換
+
+```bash
+# prebuild / prestart:ssr で自動実行
+pnpm i18n
+# ↓ 内部で実行される処理
+# 1. ng extract-i18n → locale/messages.xlf を生成
+# 2. scripts/merge-translations.ts → locale/messages.ja.xlf を生成
+```
+
+### SSR でのロケール選択
+
+`Accept-Language` ヘッダーに基づいて適切なロケールビルドを配信します。
+
+```typescript
+// apps/client/src/server.ts
+import acceptLanguage from 'accept-language';
+
+acceptLanguage.languages(['en', 'ja']);
+
+app.use((req, res, next) => {
+  const lang = acceptLanguage.get(req.headers['accept-language']) || 'en';
+  const localeBrowserDistFolder = join(browserDistFolder, lang);
+  // lang に応じたビルド済み HTML を配信
+});
+```
+
+**結果**: ユーザーのブラウザ言語設定に応じて、翻訳済みの HTML が即座に返却され、Layout Shift が発生しません。
+
+### angular.json の設定
+
+```json
+{
+  "i18n": {
+    "sourceLocale": "en",
+    "locales": {
+      "ja": "locale/messages.ja.xlf"
+    }
+  },
+  "architect": {
+    "build": {
+      "options": {
+        "polyfills": ["@angular/localize/init"]
+      },
+      "configurations": {
+        "production": {
+          "localize": true
+        }
+      }
+    }
+  }
+}
+```
+
+### 翻訳漏れの検出
+
+テストで翻訳キーの同期を検証します：
+
+```bash
+pnpm test
+# translation-sync.spec.ts が全キーの翻訳存在をチェック
+```
+
+```typescript
+// apps/client/src/test/shared/i18n/translation-sync.spec.ts
+it('should have all i18n keys defined in ja.json', () => {
+  const missingKeys = xlfIds.filter((id) => !getTranslation(id, jaTranslations));
+  expect(missingKeys).toEqual([]);
+});
+```
+
+## UI アーキテクチャ
+
+**キーワード**: `UIプリミティブ`, `Composed UI`, `shared/ui/`, `components/`, `shadcn/ui`
+
+このセクションでは、UIプリミティブとComposed UIの違い、配置場所の基準について説明します。
+
+### Primitives vs Composed
+
+| 種類           | 配置先        | 責務                       | パッケージ化       |
+| -------------- | ------------- | -------------------------- | ------------------ |
+| **Primitives** | `shared/ui/`  | スタイリングのみ、状態なし | 可能               |
+| **Composed**   | `components/` | ロジック連携、状態あり     | このリポジトリ固有 |
+
+**Primitives（shared/ui/）**:
+
+- `ButtonDirective` - ボタンスタイル
+- `InputDirective` - 入力フィールドスタイル
+- 外部パッケージ化可能、依存なし
+
+**Composed（components/）**:
+
+- `InputFieldComponent` - Reactive Forms連携、エラー表示
+- このリポジトリ固有のロジックを含む
+
+## エラーハンドリング
+
+**キーワード**: `エラーハンドリング`, `HttpInterceptor`, `ErrorFacade`, `ErrorHandler`, `エラーダイアログ`, `ページ遷移`
+
+このセクションでは、APIエラーやクライアントエラーの処理方法について説明します。HttpInterceptorによるエラー集約と、ErrorHandlerによるページ遷移の実装パターンを解説します。
+
+**関連ファイル**:
+
+- `apps/client/src/domains/infrastructure/interceptors/http-error.interceptor.ts` - HTTPエラーインターセプター
+- `apps/client/src/domains/infrastructure/error-handlers/client-error.handler.ts` - クライアントエラーハンドラー
+- `apps/client/src/modules/error/error.facade.ts` - ErrorFacade実装
+
+### 主な利用例
+
+- **APIのエラー**: HTTPリクエスト時のエラー（400, 500など）
+- **クライアントから発生するエラー**: コンポーネント内で発生するエラー（NotFoundErrorなど）
+
+### 実装パターン
+
+#### API呼び出し時のエラー
+
+`HttpInterceptor`（`apps/client/src/domains/infrastructure/interceptors/http-error.interceptor.ts`）でエラーを集約し、`ErrorFacade.showError()`経由でエラーダイアログを表示します。
+
+- 401/403/404はダイアログ表示せず、`ErrorHandler`でページ遷移
+- その他のエラー（400, 500など）はエラーダイアログで表示
+
+#### ErrorHandlerでのページ遷移
+
+`ClientErrorHandler`（`apps/client/src/domains/infrastructure/error-handlers/client-error.handler.ts`）で401/403/404エラーをキャッチし、エラーページに遷移します。
+
+- エラーページ: `/error/401`、`/error/403`、`/error/404`
+- `skipLocationChange: true`でURLは元のまま
+
+実装例:
+
+```typescript
+// ファイル: apps/client/src/domains/infrastructure/interceptors/http-error.interceptor.ts
+// HttpInterceptorでエラーをキャッチする実装例
+export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    catchError((e: HttpErrorResponse) => {
+      // 401/403/404はスキップ → ErrorHandlerで処理
+      if ([401, 403, 404].includes(e.status)) {
+        return throwError(() => e);
+      }
+      // その他のエラーはダイアログ表示
+      errorFacade.showError(apiError);
+      return throwError(() => e);
+    }),
+  );
+};
+```
+
+```typescript
+// ファイル: apps/client/src/domains/infrastructure/error-handlers/client-error.handler.ts
+// ErrorHandlerでページ遷移する実装例
+handleError(error: unknown): void {
+  if (error instanceof HttpErrorResponse) {
+    const route = PAGE_NAVIGATE_ROUTES[error.status];
+    if (route) {
+      this.router.navigate([route], { skipLocationChange: true });
+    }
+  }
+}
+```
+
+## スピナー（Spinner）
+
+**キーワード**: `Spinner`, `ローディング`, `SpinnerFacade`, `withSpinner`, `API呼び出し`
+
+このセクションでは、API呼び出し時にSpinnerを表示する方法について説明します。
+
+**関連ファイル**:
+
+- `apps/client/src/modules/spinner/spinner.facade.ts` - SpinnerFacade実装
+
+### 主な利用例
+
+- **API呼び出し時のロック**: APIリクエスト中にユーザー操作をロックし、処理中であることを視覚的に示す
+
+### 実装パターン
+
+API呼び出し時は`SpinnerFacade.withSpinner()`を使用してSpinnerを表示します。
+
+- RxJSオペレーターとして使用し、Observableにパイプで接続
+- 自動的にスピナーを表示/非表示し、最小表示時間を保証してちらつきを防止
+
+実装例:
+
+```typescript
+// SpinnerFacadeを使用したAPI呼び出しの実装例
+this.api
+  .getArticle(articleId)
+  .pipe(this.spinnerFacade.withSpinner())
+  .subscribe((response) => {
+    // 処理
+  });
+```
+
+## スナックバー（Snackbar）
+
+**キーワード**: `Snackbar`, `通知`, `SnackbarFacade`, `showSnackbar`, `成功メッセージ`
+
+このセクションでは、API呼び出し後にSnackbarでメッセージを表示する方法について説明します。
+
+**関連ファイル**:
+
+- `apps/client/src/modules/snackbar/snackbar.facade.ts` - SnackbarFacade実装
+
+### 主な利用例
+
+- **API呼び出し後のメッセージ**: 保存成功、更新完了などの成功メッセージを表示
+
+### 実装パターン
+
+保存成功時は`SnackbarFacade.showSnackbar()`でメッセージを表示します。
+
+実装例:
+
+```typescript
+// SnackbarFacadeを使用した成功メッセージ表示の実装例
+this.facade.updateArticle(articleId, request).subscribe(() => {
+  this.snackbarFacade.showSnackbar('保存しました', 'success');
+});
+```
+
+---
+
+## ISR（Incremental Static Regeneration）
+
+**キーワード**: `ISR`, `SSR`, `@rx-angular/isr`, `キャッシュ`, `静的生成`, `再生成`
+
+このセクションでは、`@rx-angular/isr` を使用した ISR（Incremental Static Regeneration）の実装について説明します。
+
+**関連ファイル**:
+
+- `apps/client/src/server.ts` - Express サーバー（ISR 設定）
+- `apps/client/src/modules/isr/isr.service.ts` - ISR キャッシュ無効化サービス
+
+### ISR の仕組み
+
+ISR は、静的に生成されたページを増分的に再生成する仕組みです。リクエスト時にキャッシュされたHTMLを返しつつ、バックグラウンドで最新版を生成します。
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant SSRServer
+    participant Cache
+    participant NestJS
+
+    Browser->>SSRServer: GET /article/123
+    SSRServer->>Cache: キャッシュ確認
+    alt キャッシュあり（有効期限内）
+        Cache->>Browser: キャッシュされたHTML
+    else キャッシュなし or 期限切れ
+        SSRServer->>NestJS: API呼び出し
+        NestJS->>SSRServer: データ返却
+        SSRServer->>Cache: HTML保存
+        SSRServer->>Browser: 新規生成HTML
+    end
+```
+
+### ルート設定
+
+各ルートに `revalidate` オプションを指定して、キャッシュの有効期限を設定します。
+
+```typescript
+// apps/client/src/app/app.routes.ts
+export const routes: Routes = [
+  { path: '', component: HomeComponent, data: { revalidate: 60 } }, // 60秒
+  { path: 'article/:id', component: ArticleComponent, data: { revalidate: 300 } }, // 5分
+];
+```
+
+### キャッシュ無効化
+
+記事の更新や削除時に、`IsrService` を使用してキャッシュを手動で無効化します。
+
+```typescript
+// apps/client/src/modules/isr/isr.service.ts
+@Injectable({ providedIn: 'root' })
+export class IsrService {
+  invalidateCache(urlsToInvalidate: string[]): Observable<void> {
+    return this.http.post<void>('/api/invalidate-cache', {
+      secret: environment.isrSecret,
+      urlsToInvalidate,
+    });
+  }
+
+  // 記事ページのキャッシュを無効化
+  invalidateArticle(articleId: string): Observable<void> {
+    return this.invalidateCache([`/article/${articleId}`]);
+  }
+}
+```
+
+### SSR サーバー側の設定
+
+```typescript
+// apps/client/src/server.ts
+import { ISRHandler } from '@rx-angular/isr/server';
+
+const isr = new ISRHandler({
+  indexHtml,
+  invalidateSecretToken: process.env['ISR_SECRET'] || 'MY_SECRET_TOKEN',
+  enableLogging: !isProd,
+});
+
+// ISR キャッシュ無効化エンドポイント
+server.post('/api/invalidate-cache', async (req, res) => {
+  await isr.invalidate(req, res, req.body);
+});
+```
+
+## SEO対応
+
+**キーワード**: `SEO`, `Open Graph`, `Twitter Card`, `meta タグ`, `OG画像`, `Sitemap`
+
+このセクションでは、SEO 最適化のための実装について説明します。
+
+**関連ファイル**:
+
+- `apps/client/src/modules/seo/seo.service.ts` - SEO サービス
+- `apps/client/src/server.ts` - Sitemap 生成
+
+### SeoService
+
+`SeoService` は、Open Graph や Twitter Card などの meta タグを動的に設定します。
+
+```typescript
+// apps/client/src/modules/seo/seo.service.ts
+@Injectable({ providedIn: 'root' })
+export class SeoService {
+  setArticleMeta(article: Article): void {
+    this.meta.updateTag({ property: 'og:title', content: article.title });
+    this.meta.updateTag({ property: 'og:description', content: article.description });
+    this.meta.updateTag({ property: 'og:image', content: article.ogImageUrl });
+    this.meta.updateTag({ property: 'og:type', content: 'article' });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+  }
+}
+```
+
+### OG画像の動的生成
+
+OG画像は NestJS API で動的に生成し、キャッシュされます。
+
+```typescript
+// 記事のOG画像URL
+const ogImageUrl = `${environment.apiUrl}/api/og-image/article/${articleId}`;
+```
+
+### Sitemap 動的生成
+
+Sitemap は SSR サーバーで動的に生成されます。
+
+```typescript
+// apps/client/src/server.ts
+server.get('/sitemap.xml', async (_req, res) => {
+  const response = await fetch(`${apiUrl}/api/sitemap`);
+  const sitemapData = await response.json();
+
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${sitemapData.urls.map((url) => `<url><loc>${url}</loc></url>`).join('\n')}
+</urlset>`;
+
+  res.type('application/xml').send(sitemap);
+});
+```
+
+## Cookie Consent（Google Consent Mode v2）
+
+**キーワード**: `Cookie Consent`, `GDPR`, `CCPA`, `Google Consent Mode`, `プライバシー`
+
+このセクションでは、GDPR/CCPA 対応のための Google Consent Mode v2 の実装について説明します。
+
+**関連ファイル**:
+
+- `apps/client/src/index.html` - Consent Mode 初期化
+- `apps/client/src/modules/consent/consent.service.ts` - Consent 管理サービス
+
+### Consent Mode v2 の仕組み
+
+Google Consent Mode v2 では、ユーザーの同意状態に応じて Google Analytics や広告タグの動作を制御します。
+
+| 状態      | 動作                                  |
+| --------- | ------------------------------------- |
+| `denied`  | Cookie を使用せず、匿名データのみ収集 |
+| `granted` | Cookie を使用した完全なトラッキング   |
+
+### デフォルト設定
+
+ページ読み込み時はデフォルトで `denied` に設定し、ユーザーの同意を待ちます。
+
+```html
+<!-- apps/client/src/index.html -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+
+  // デフォルトで denied（同意前）
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+    wait_for_update: 500,
+  });
+</script>
+```
+
+### 同意後の更新
+
+ユーザーが同意した後、`ConsentService` で状態を更新します。
+
+```typescript
+// apps/client/src/modules/consent/consent.service.ts
+@Injectable({ providedIn: 'root' })
+export class ConsentService {
+  grantConsent(): void {
+    gtag('consent', 'update', {
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted',
+      analytics_storage: 'granted',
+    });
+    localStorage.setItem('cookie_consent', 'granted');
+  }
+}
+```
+
+---
+
+## テスト戦略
+
+**キーワード**: `テスト`, `Vitest`, `@testing-library/angular`, `カバレッジ`, `Unit`, `E2E`
+
+このセクションでは、テストの実行方法と構成について説明します。
+
+### テストの種類と配置
+
+テストは **Unit テスト** と **E2E テスト** に分離されています。
+
+| 種類        | 配置先                  | ファイル名  | 用途                       |
+| ----------- | ----------------------- | ----------- | -------------------------- |
+| Unit テスト | `src/**/*.test.ts`      | `*.test.ts` | コンポーネント・サービス   |
+| E2E テスト  | `src/test/**/*.spec.ts` | `*.spec.ts` | 統合テスト・翻訳同期テスト |
+
+### コマンド
+
+```bash
+pnpm test           # Unit + E2E テスト実行
+pnpm test:unit      # Unit テストのみ
+pnpm test:e2e       # E2E テストのみ
+pnpm test:coverage  # Unit テストのカバレッジ
+pnpm test:watch     # ウォッチモード
+```
+
+### 役割分担
+
+| ツール    | 役割                     |
+| --------- | ------------------------ |
+| Storybook | UIカタログ・ドキュメント |
+| Vitest    | Unit テスト・E2E テスト  |
+
+> **Note**: `@storybook/addon-vitest` は Angular では未対応のため、テストは Vitest で行います。
+
+## Storybook
+
+**キーワード**: `Storybook`, `UIカタログ`, `ドキュメント`, `Stories`
+
+このセクションでは、Storybookを使用したUIコンポーネントのカタログ・ドキュメント作成方法について説明します。
+
+UIコンポーネントのカタログ・ドキュメントを提供します。
+
+### 起動
+
+```bash
+pnpm storybook        # http://localhost:6006
+```
+
+### 対象コンポーネント
+
+| カテゴリ   | パス                             | 内容                |
+| ---------- | -------------------------------- | ------------------- |
+| UI         | `shared/ui/button/`              | ButtonDirective     |
+| UI         | `shared/ui/input/`               | InputDirective      |
+| Components | `components/fields/input-field/` | InputFieldComponent |
+
+### Stories の書き方
+
+`*.stories.ts` ファイルに各バリアントを定義：
+
+```typescript
+// ファイル: apps/client/src/shared/ui/button/button.stories.ts
+// Storybook Storiesの実装例
+import { ButtonDirective } from './button';
+import type { Meta, StoryObj } from '@storybook/angular';
+
+const meta: Meta<ButtonDirective> = {
+  title: 'UI/Button',
+  component: ButtonDirective,
+  tags: ['autodocs'],
+  // ...
+};
+
+export const Default: Story = {
+  args: { variant: 'default' },
+};
+```
+
+## パフォーマンス最適化
+
+**キーワード**: `Zoneless`, `変更検知`, `AsyncPipe`, `@rx-angular/template`, `RxUnpatch`, `ISR`
+
+このセクションでは、Zoneless変更検知とSSRハイドレーションを考慮したパフォーマンス最適化について説明します。
+
+### Zoneless 変更検知
+
+`provideZonelessChangeDetection()` により Zone.js を使用せず、効率的な変更検知を実現。
+
+### Observable のテンプレートバインディング
+
+SSR + ハイドレーションを使用するページでは、`async` パイプを使用します。
+
+**なぜ AsyncPipe を使うか:**
+
+- SSR でレンダリングされた HTML がそのままハイドレーションされる
+- レイアウトシフト（CLS）が発生しない
+- Angular 標準のため、追加のライブラリ不要
+
+```typescript
+// SSR対応ページでの推奨パターン
+@Component({
+  imports: [AsyncPipe, ArticleListContentComponent],
+})
+export class ArticleListComponent {
+  readonly articleList$ = this.facade.articleList$;
+}
+```
+
+```html
+<!-- AsyncPipe + null coalescing でデフォルト値を指定 -->
+<app-article-list-content [articles]="(articleList$ | async) ?? []" />
+
+<!-- 条件分岐も async パイプで対応 -->
+@if ((isAuthenticated$ | async) === true) {
+<app-user-menu />
+}
+```
+
+### Angular 17+ Zoneless 環境での AsyncPipe
+
+Angular 17+ の `provideZonelessChangeDetection()` を使用する Zoneless 環境では、`AsyncPipe` が RxLet と同等のパフォーマンスを発揮します。これは、Zone.js による不要な変更検知が発生しないためです。
+
+**Zoneless 環境での推奨:**
+
+| シナリオ                 | 推奨                     | 理由                                   |
+| ------------------------ | ------------------------ | -------------------------------------- |
+| SSR + ハイドレーション   | `AsyncPipe`              | ハイドレーション対応 + Zoneless で高速 |
+| CSR のみ（ダイアログ等） | `AsyncPipe` または RxLet | どちらも同等のパフォーマンス           |
+
+> **結論**: Zoneless 環境では `AsyncPipe` が SSR 対応かつ高パフォーマンスなため、標準として使用することを推奨します。RxLet は CSR のみのコンポーネントで使用できますが、プロジェクト全体で `AsyncPipe` に統一することでコードの一貫性が保たれます。
+
+### @rx-angular/template の使いどころ
+
+RxLet / RxIf などの rx-angular ディレクティブは、**SSR を使用しないコンポーネント**（ダイアログ、モーダル、オーバーレイなど）で使用できます。
+
+> **⚠️ 注意**: RxLet / RxIf は `ngSkipHydration` を自動追加するため、SSR ページで使用するとハイドレーションがスキップされ、CLS が発生する可能性があります。
+
+| ディレクティブ | 用途                            | SSR対応 |
+| -------------- | ------------------------------- | ------- |
+| `AsyncPipe`    | Observable をテンプレートで使用 | ✅      |
+| `RxLet`        | Observable を変数として展開     | ❌      |
+| `RxIf`         | Observable の値で条件分岐       | ❌      |
+| `RxUnpatch`    | イベントを Zone.js から除外     | ✅      |
+
+#### RxUnpatch の使用例
+
+Change Detection が不要なイベント（オーバーレイのクリックなど）に使用します。
+
+```html
+<!-- unpatch: Zone.js を介さずにイベントを処理 -->
+<div class="overlay" [unpatch]="['click']" (click)="closeSidebar()"></div>
+
+<!-- 複数のイベントを unpatch -->
+<div [unpatch]="['scroll', 'mousemove']" (scroll)="onScroll()">...</div>
+```
+
+```typescript
+import { RxUnpatch } from '@rx-angular/template/unpatch';
+
+@Component({
+  imports: [RxUnpatch],
+})
+export class SidebarComponent { ... }
+```
+
+### Signal vs Observable の使い分け
+
+| データソース   | 推奨技術                | 理由                                            |
+| -------------- | ----------------------- | ----------------------------------------------- |
+| **Signal**     | 組み込み `@if` / `@for` | Signal はすでに効率的な Change Detection を持つ |
+| **Observable** | `async` パイプ          | SSR ハイドレーション対応                        |
+
+**Signal を使う場面:**
+
+1. **Signal はすでに効率的**: Angular Signal は Zone.js に依存しないリアクティブプリミティブ
+2. **Angular 17+ の `@if`/`@for` は Signal と最適化**: 組み込みコントロールフローは Signal を意識して設計されている
+
+```typescript
+// 推奨: Signal には組み込み @if/@for を使用
+@Component({ ... })
+export class ArticleListContentComponent {
+  readonly articles = input.required<Article[]>();
+}
+```
+
+```html
+<!-- Signal ベース: 組み込み @for で十分 -->
+@for (article of articles(); track article.id) {
+<app-article-card [article]="article" />
+}
+```
+
+```typescript
+// 推奨: Observable には async パイプを使用（SSR対応）
+@Component({
+  imports: [AsyncPipe],
+})
+export class ArticlePageComponent {
+  readonly page$ = this.facade.page$;
+  readonly items$ = this.facade.items$;
+}
+```
+
+```html
+<!-- Observable ベース: async パイプ -->
+@if ((page$ | async); as page) {
+<app-content [items]="(items$ | async) ?? []" />
+}
+```
+
+## エラーコード同期テスト
+
+**キーワード**: `エラーコード`, `翻訳同期`, `自動テスト`, `多言語対応`
+
+このセクションでは、サーバー側のエラーコードとクライアント側の翻訳ファイルの同期を検証するテストについて説明します。
+
+**関連ファイル**:
+
+- `apps/client/src/test/shared/i18n/error-code-sync.spec.ts` - 同期テスト
+- `packages/error-code/src/error-code.ts` - エラーコード定義
+
+### 同期テストの目的
+
+サーバー側で定義された `ERROR_CODE` と、クライアント側の翻訳ファイル（`error/ja.json`、`error/en.json`）が同期していることを自動的に検証します。
+
+**検証内容:**
+
+1. すべてのエラーコードに対応する翻訳が存在すること
+2. 翻訳ファイルに未使用のキーが存在しないこと
+3. 日本語と英語の両方で翻訳が揃っていること
+
+### テスト実装
+
+```typescript
+// apps/client/src/test/shared/i18n/error-code-sync.spec.ts
+import { ERROR_CODE } from '@monorepo/error-code';
+import jaErrors from '../../../public/i18n/error/ja.json';
+import enErrors from '../../../public/i18n/error/en.json';
+
+describe('Error Code Sync', () => {
+  const errorCodes = Object.values(ERROR_CODE);
+
+  it('should have Japanese translations for all error codes', () => {
+    const missingCodes = errorCodes.filter((code) => !jaErrors[code]);
+    expect(missingCodes).toEqual([]);
+  });
+
+  it('should have English translations for all error codes', () => {
+    const missingCodes = errorCodes.filter((code) => !enErrors[code]);
+    expect(missingCodes).toEqual([]);
+  });
+
+  it('should not have unused translations in Japanese', () => {
+    const unusedKeys = Object.keys(jaErrors).filter((key) => !errorCodes.includes(key as ERROR_CODE));
+    expect(unusedKeys).toEqual([]);
+  });
+});
+```
+
+### メリット
+
+- **自動検証**: CI/CD パイプラインで翻訳漏れを検出
+- **型安全**: TypeScript の型とエラーコードが常に同期
+- **多言語対応**: 日本語・英語の両方で翻訳が揃っていることを保証
+
+## パッケージ管理（pnpm catalog）
+
+**キーワード**: `pnpm`, `catalog`, `バージョン管理`, `pnpm-workspace.yaml`
+
+このセクションでは、pnpm catalogを使用したパッケージバージョンの一元管理方法について説明します。
+
+バージョンを `pnpm-workspace.yaml` で一元管理し、モノレポ全体で統一します。
+
+### 設定例
+
+```yaml
+# ファイル: pnpm-workspace.yaml（ルートディレクトリ）
+versions:
+  angular: &angular 21.0.0
+  ngxs: &ngxs 20.1.0
+
+catalog:
+  '@angular/core': *angular
+  '@ngxs/store': *ngxs
+```
+
+```json
+// ファイル: apps/client/package.json
+{
+  "dependencies": {
+    "@angular/core": "catalog:",
+    "@ngxs/store": "catalog:"
+  }
+}
+```
+
+### バージョンアップ手順
+
+1. `pnpm-workspace.yaml` のバージョンを変更
+2. `pnpm install` で全パッケージ一括更新
